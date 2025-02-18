@@ -1,79 +1,140 @@
-# <div align="center">Litter Detection with Yolov8</div>
-![demo](https://github.com/jeremy-rico/litter-detection/raw/master/assets/litter-detection.gif)
-     
-## Summary
+📜 README.md (for your GitHub repository)
 
-This is a demo for detecting trash/litter objects with Ultralytics YOLOv8 and the Trash Annotations in Contect (TACO) dataset created by Pedro Procenca and Pedro Simoes. Included is a infer and train script for you to do similar experiments to what I did. There are also the results and weights of various training runs in runs/detect/train for you to experiment with or use as pretrained weights.
+# 🗑️ Automated Waste Sorting using Computer Vision & YOLOv8
 
-## INFERENCE
+![Project Banner](https://via.placeholder.com/1200x400?text=Automated+Waste+Sorting)  
+*A deep learning-based approach for real-time waste detection and classification using YOLOv8 and MongoDB.*
 
-1. Create python or conda vitrual environment
+## 🚀 Overview
+This project utilizes **YOLOv8** to detect and classify different types of litter in real-time using **computer vision**. The trained model helps in automated waste sorting, making recycling more efficient.
 
-     conda create -n yolov8 -python=3.7 pytorch=1.7
+## 📂 Dataset
+We use the **TACO (Trash Annotations in Context)** dataset, which consists of labeled images of waste items for training our object detection model.
 
-     conda activate yolov8
+- **Dataset Source:** [Roboflow TACO Dataset](https://universe.roboflow.com/mohamed-traore-2ekkp/taco-trash-annotations-in-context)
+- **Classes:** 60 different types of waste materials (plastic, metal, paper, etc.)
 
-2. Install ultralytics yolov8
+## 🛠️ Installation
+To set up the project, follow these steps:
 
-     python3 -m pip install ultralytics
+### **1️⃣ Clone the Repository**
+```bash
+git clone https://github.com/ziatily2/Automated-Waste-Sorting-using-Computer-Vision-and-MongoDB.git
+cd Automated-Waste-Sorting-using-Computer-Vision-and-MongoDB
 
-3. Run infer script
+2️⃣ Install Dependencies
 
-     python3 infer.py src=path/to/your/test/data
+pip install -r requirements.txt
 
-See the ultralytics documentation on yolov8 for more information
-https://docs.ultralytics.com/
+If you don’t have requirements.txt, install them manually:
 
-## TRAINING
+pip install ultralytics opencv-python roboflow numpy torch torchvision matplotlib
 
-1. Download TACO dataset:
-https://github.com/pedropro/TACO
+3️⃣ Download the Dataset
 
-Note: You can add more annotated data if you'd like. Just ensure labels are in proper YOLO format
+Run the following in a Jupyter Notebook or Google Colab:
 
-2. Format the dataset
+from roboflow import Roboflow
+rf = Roboflow(api_key="YOUR_API_KEY")
+project = rf.workspace("mohamed-traore-2ekkp").project("taco-trash-annotations-in-context")
+version = project.version(16)
+dataset = version.download("yolov8")
 
-Organize the data into the directory structure below
+This will download the dataset into the current directory.
+🎯 Training the Model
 
-     ├── yolov8
-          └── train
-               └── images (folder including all training images)
-               └── labels (folder including all training labels)
-          └── test
-                └── images (folder including all testing images)
-                └── labels (folder including all testing labels)
-          └── valid
-               └── images (folder including all testing images)
-               └── labels (folder including all testing labels)
+To train the YOLOv8 model on the dataset:
 
-3. Create custom data yaml. 
-I've provided the one I created for TACO. You will need to change the path at the top to your local TACO directory. It should look something like this:
+from ultralytics import YOLO
 
-custom_data.yaml:
+# Load YOLOv8 model
+model = YOLO("yolov8s.pt")
 
-     path:  (dataset directory path)
-     train: (Complete path to dataset train folder)
-     test: (Complete path to dataset test folder) 
-     valid: (Complete path to dataset valid folder)
+# Train the model
+results = model.train(data="tacoily.yaml", epochs=100, imgsz=640, batch=16)
 
-     #Classes
-     nc: # replace according to your number of classes
+    epochs=100: Train for 100 epochs.
+    imgsz=640: Image size set to 640x640.
+    batch=16: Batch size of 16.
 
-     #classes names
-     #replace all class names list with your classes names
-     names: ['put', 'classes', 'here']
+The trained weights will be saved in:
 
-4. Run train.py
-     python3 train.py
+runs/detect/train/weights/best.pt
 
-## Sources
+🎥 Real-Time Detection
 
-Ultralytics Yolov8:
+Run the trained model to detect waste in real-time using a webcam.
 
-https://github.com/ultralytics/ultralytics
+import cv2
+from ultralytics import YOLO
 
-Trash Annotations in Context (TACO):
+# Load trained model
+model = YOLO("runs/detect/train/weights/best.pt")
 
-https://github.com/pedropro/TACO
+# Initialize webcam
+cap = cv2.VideoCapture(0)
 
-http://tacodataset.org/
+while cap.isOpened():
+    success, frame = cap.read()
+    if not success:
+        print("Failed to capture frame")
+        break
+    
+    # Perform inference
+    results = model(frame)
+
+    # Draw detections on the frame
+    annotated_frame = results[0].plot()
+
+    # Show the frame
+    cv2.imshow("YOLOv8 Waste Detection", annotated_frame)
+
+    # Press 'q' to exit
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+
+📈 Model Performance
+
+After training, evaluate the model using:
+
+metrics = model.val()
+
+This outputs:
+
+    Precision, Recall, and mAP (mean Average Precision).
+    Confusion matrix and detection results.
+
+📌 Directory Structure
+
+📂 Automated-Waste-Sorting-using-Computer-Vision-and-MongoDB
+ ├── 📂 dataset
+ │   ├── train/
+ │   ├── val/
+ │   ├── test/
+ ├── 📂 runs
+ │   ├── detect/
+ │   │   ├── train/
+ │   │   │   ├── weights/
+ │   │   │   │   ├── best.pt
+ │   │   │   │   ├── last.pt
+ ├── 📝 README.md
+ ├── 📝 data.yaml
+ ├── 📝 tacoily.yaml
+ ├── 📜 infer.py
+ ├── 📜 train.py
+ ├── 📜 detector.py
+ ├── 📦 requirements.txt
+
+🛠️ Issues & Troubleshooting
+
+    Model not detecting all classes correctly?
+    🔹 Ensure the dataset is properly labeled.
+    🔹 Train for more epochs (epochs=200).
+    🔹 Try different confidence thresholds (conf=0.25).
+
+    Webcam not working?
+    🔹 Make sure OpenCV is installed (pip install opencv-python).
+    🔹 Use cv2.VideoCapture(1) if 0 does not work.
