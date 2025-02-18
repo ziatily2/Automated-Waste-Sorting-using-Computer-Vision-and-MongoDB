@@ -1,9 +1,8 @@
-📜 README.md (for your GitHub repository)
+
 
 # 🗑️ Automated Waste Sorting using Computer Vision & YOLOv8
 
-![Project Banner](https://via.placeholder.com/1200x400?text=Automated+Waste+Sorting)  
-*A deep learning-based approach for real-time waste detection and classification using YOLOv8 and MongoDB.*
+
 
 ## 🚀 Overview
 This project utilizes **YOLOv8** to detect and classify different types of litter in real-time using **computer vision**. The trained model helps in automated waste sorting, making recycling more efficient.
